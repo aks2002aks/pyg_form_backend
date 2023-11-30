@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { connectDatabase } from "./database";
 import authRoutes from "./routes/authRoutes";
 import welcomeRoutes from "./routes/welcomeRoutes";
+import cors from "cors";
 
 dotenv.config();
 
@@ -18,6 +19,8 @@ connectDatabase();
 
 // Middleware
 app.use(express.json());
+// Enable CORS for all routes
+app.use(cors());
 
 // Routes
 app.use("/api", authRoutes);
