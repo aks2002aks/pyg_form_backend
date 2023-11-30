@@ -38,10 +38,10 @@ const login = async (req: Request, res: Response) => {
           expiresIn: "1day",
         }
       );
-      res.header("set-cookie", "jwt=" + authToken + ";");
       res.json({
         success: true,
         message: "Login successful",
+        jwt: authToken,
       });
     } else {
       res.status(401).json({
