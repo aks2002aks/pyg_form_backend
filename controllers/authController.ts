@@ -17,7 +17,7 @@ const login = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or phone number",
+        message: "Email or phone number does not exist. Please signup",
       });
     }
 
@@ -46,7 +46,7 @@ const login = async (req: Request, res: Response) => {
     } else {
       res.status(401).json({
         success: false,
-        message: "Invalid password",
+        message: "Invalid email or phone number or password",
       });
     }
   } catch (error) {
@@ -67,7 +67,7 @@ const signup = async (req: Request, res: Response) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
         message:
           "Email or phone number already exists. Please use a different one or login",
