@@ -1,6 +1,6 @@
 // models/allFormFieldModel.ts
 
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 interface FormField {
   type: string;
@@ -9,7 +9,6 @@ interface FormField {
   focus: boolean;
   options?: string[];
   isOther?: boolean;
-  otherText?: string;
   description?: string;
   required: boolean;
   validation?: any;
@@ -17,41 +16,84 @@ interface FormField {
   isTime?: boolean;
   answer?: string;
   selectedAnswer?: string[];
-  fromRange?: string;
-  toRange?: string;
+  imageUrlKey: string;
+  imageSettings: {
+    width: number;
+    height: number;
+    align: string;
+  };
 }
 
-interface AllFormField extends Document {
+interface genricForm extends Document {
   formFields: FormField[];
-  userId?: string;
-  user?: string;
+  userId: string;
+  user: string;
+  createdAt: Date;
+  updatedAt: Date;
+  formName: string;
+  isPublic?: boolean;
+  formSettings?: any;
+  acceptingResponses: boolean;
+  acceptingResponsesTill?: string;
+  accessByRole?: string[];
 }
 
-const allFormFieldSchema = new Schema<AllFormField>({
-  formFields: [
-    {
-      type: String,
-      id: String,
-      label: String,
-      focus: Boolean,
-      options: [String],
-      isOther: Boolean,
-      otherText: String,
-      description: String,
-      required: Boolean,
-      validation: Schema.Types.Mixed,
-      fileValidation: Schema.Types.Mixed,
-      isTime: Boolean,
-      answer: String,
-      selectedAnswer: [String],
-      fromRange: String,
-      toRange: String,
-    },
-  ],
+const genricFormSchema = new Schema<genricForm>({
+  formFields: [Schema.Types.Mixed],
   userId: String,
   user: String,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: Date,
+  formName: String,
+  isPublic: {
+    type: Boolean,
+    default: false,
+  },
+  acceptingResponses: {
+    type: Boolean,
+    default: true,
+  },
+  accessByRole: {
+    type: [String],
+    default: ["admin", "manager", "vendor", "customer"],
+  },
+  acceptingResponsesTill: String,
+  formSettings: {
+    response: {
+      collectEmailAddresses: {
+        type: String,
+        enum: ["do not collect", "Verified", "Responder input"],
+        default: "do not collect",
+      },
+      limitToOneResponsePerPerson: {
+        type: Boolean,
+        default: false,
+      },
+      allowResponseEditing: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    presentation: {
+      showLinkToSubmitAnotherResponse: {
+        type: Boolean,
+        default: false,
+      },
+      confirmationMessage: {
+        type: String,
+        default: "Your response has been recorded.",
+      },
+    },
+    defaults: {
+      makeAllQuestionsRequire: {
+        type: Boolean,
+        default: false,
+      },
+    },
+  },
 });
 
-const AllFormFieldModel = mongoose.model<AllFormField>('AllFormField', allFormFieldSchema);
-
-export default AllFormFieldModel;
+export default mongoose.model<genricForm>("genricForm", genricFormSchema);

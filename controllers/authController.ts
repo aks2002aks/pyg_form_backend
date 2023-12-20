@@ -1,9 +1,10 @@
 // controllers/authController.ts
 
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user";
+import mongoose from "mongoose";
 
 const login = async (req: Request, res: Response) => {
   const { email, phone, password } = req.body;
@@ -24,24 +25,12 @@ const login = async (req: Request, res: Response) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
-      const authToken = jwt.sign(
-        {
-          userId: user._id,
-          fistName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-        },
-        process.env.JWT_TOKEN as string,
-        {
-          expiresIn: "1day",
-        }
-      );
+      const { password, ...userData } = user.toObject();
+
       res.json({
         success: true,
         message: "Login successful",
-        jwt: authToken,
+        user: userData,
       });
     } else {
       res.status(401).json({
@@ -83,35 +72,58 @@ const signup = async (req: Request, res: Response) => {
       phone,
       updatedAt: new Date().toISOString(),
     });
+
     await user.save();
-    res
-      .status(201)
-      .json({ success: true, message: "User registered successfully" });
+
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
 
-const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const bearertoken = req.headers.authorization;
-    const token = bearertoken?.split(" ")[1];
-
-    if (token) {
-      const decodedToken: any = jwt.verify(
-        token,
-        process.env.JWT_TOKEN as string
-      );
-
-      if (decodedToken) {
-        res.locals.user = decodedToken;
-        return next();
-      }
+    if (error instanceof mongoose.Error.ValidationError) {
+      // Handle validation errors (e.g., required fields)
+      return res.status(400).json({
+        success: false,
+        message: "Validation error. Check your input.",
+        errors: error.errors,
+      });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to register user. Internal server error.",
+    });
   }
 };
 
-export { isLoggedIn, login, signup };
+// const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const bearertoken = req.headers.authorization;
+//     const token = bearertoken?.split(" ")[1];
+
+//     if (token) {
+//       const decodedToken: any = jwt.verify(
+//         token,
+//         process.env.JWT_TOKEN as string
+//       );
+
+//       if (decodedToken) {
+//         res.locals.user = decodedToken;
+//         return next();
+//       }
+//     }
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// };
+
+// const signout = async (req: Request, res: Response) => {
+//   res.clearCookie("jwt");
+//   res.json({
+//     success: true,
+//     message: "User signed out successfully",
+//   });
+// };
+
+export { login, signup };

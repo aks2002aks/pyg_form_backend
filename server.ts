@@ -7,6 +7,10 @@ import { connectDatabase } from "./database";
 import authRoutes from "./routes/authRoutes";
 import welcomeRoutes from "./routes/welcomeRoutes";
 import cors from "cors";
+import tokenRoutes from "./routes/tokenRoutes";
+import questionFormRoutes from "./routes/questionFormRoutes";
+import awsS3Routes from "./routes/awsS3Routes";
+import formResponseRoutes from "./routes/formResponseRoutes";
 
 dotenv.config();
 
@@ -16,7 +20,6 @@ app.use(mongoSanitize());
 
 // Connect to MongoDB
 connectDatabase();
-
 // Middleware
 app.use(express.json());
 // Enable CORS for all routes
@@ -25,6 +28,10 @@ app.use(cors());
 // Routes
 app.use("/api", authRoutes);
 app.use("/api", welcomeRoutes);
+app.use("/api", tokenRoutes);
+app.use("/api", questionFormRoutes);
+app.use("/api", awsS3Routes);
+app.use("/api", formResponseRoutes);
 
 // Start the server
 const port = process.env.PORT || 4000;
