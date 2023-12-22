@@ -11,6 +11,7 @@ import tokenRoutes from "./routes/tokenRoutes";
 import questionFormRoutes from "./routes/questionFormRoutes";
 import awsS3Routes from "./routes/awsS3Routes";
 import formResponseRoutes from "./routes/formResponseRoutes";
+import { client, connectRedisDatabase } from "./redis";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(mongoSanitize());
 
 // Connect to MongoDB
 connectDatabase();
+connectRedisDatabase();
 // Middleware
 app.use(express.json());
 // Enable CORS for all routes
@@ -32,6 +34,10 @@ app.use("/api", tokenRoutes);
 app.use("/api", questionFormRoutes);
 app.use("/api", awsS3Routes);
 app.use("/api", formResponseRoutes);
+
+client.on("error", (err) => {
+  console.log("Redis error: ", err);
+});
 
 // Start the server
 const port = process.env.PORT || 4000;

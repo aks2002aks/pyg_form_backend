@@ -13,6 +13,7 @@ export interface User extends Document {
   isPhoneVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
+  profileImageUrl: string;
 }
 
 const userSchema = new mongoose.Schema<User>({
@@ -41,6 +42,9 @@ const userSchema = new mongoose.Schema<User>({
     type: String,
     enum: ["admin", "manager", "vendor", "customer"],
     default: "customer",
+  },
+  profileImageUrl: {
+    type: String,
   },
   isEmailVerified: {
     type: Boolean,

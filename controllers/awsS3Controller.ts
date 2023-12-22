@@ -232,6 +232,83 @@ const deleteFormFiles = async (req: Request, res: Response) => {
   }
 };
 
+
+
+const deleteProfileImage = async (req: Request, res: Response) => {
+  const { fileKey } = req.query;
+
+  try {
+    if (!fileKey) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing fileKey parameter",
+      });
+    } else {
+      const Key = `${fileKey}`;
+      const command = new DeleteObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key,
+      });
+
+      await client_s3.send(command);
+      return res.status(200).json({
+        success: true,
+        message: "Delete successful",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Error deleting image: " + error,
+    });
+  }
+};
+
+const uploadProfileImage = async (req: Request, res: Response) => {
+  const { fileType, fileKey, fileName } = req.query;
+
+  const decodedFileType = decodeURIComponent(fileType as string);
+  const decodedfileKey = decodeURIComponent(fileKey as string);
+  const decodedfileName = decodeURIComponent(fileName as string);
+
+  try {
+    if (!decodedFileType || !decodedfileKey || !decodedfileName) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing fileKey or fileType parameter",
+      });
+    } else {
+      const Key = `user/${decodedfileKey}/${decodedfileName}`;
+      const ext = decodedFileType.split("/")[1];
+      const s3Params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key,
+        ContentType: `images/${ext}`,
+      };
+
+      const uploadUrl = await getSignedUrl(
+        client_s3,
+        new PutObjectCommand(s3Params),
+        {
+          expiresIn: 600,
+        }
+      );
+
+      return res.status(200).json({
+        success: true,
+        uploadUrl,
+        Key,
+        message: "Uploaded successful",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Error uploading image: " + error,
+    });
+  }
+};
+
 export {
   uploadImage,
   uploadFile,
@@ -239,4 +316,6 @@ export {
   deleteFormImages,
   deleteFile,
   deleteFormFiles,
+  uploadProfileImage,
+  deleteProfileImage
 };
