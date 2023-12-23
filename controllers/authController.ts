@@ -191,6 +191,25 @@ async function verifyEmailOTP(req: Request, res: Response) {
   }
 }
 
+async function verifyOTPUsingEmail(req: Request, res: Response) {
+  const { email, otp } = req.body;
+
+  try {
+    const storedOTP = await getAsync(email);
+
+    if (storedOTP && storedOTP === otp) {
+      // Remove the OTP from Redis after successful verification
+      await delAsync(email);
+
+      res.json({ success: true, message: "OTP verified successfully" });
+    } else {
+      res.json({ success: false, message: "Invalid OTP" });
+    }
+  } catch (error) {
+    res.json({ success: false, message: "Error verifying OTP" });
+  }
+}
+
 async function resendEmailOTP(req: Request, res: Response) {
   const { email } = req.body;
 
@@ -219,12 +238,43 @@ async function setProfileImageUrl(req: Request, res: Response) {
       user.profileImageUrl = profileImageUrl;
       await user.save();
 
-      res.json({ success: true, message: "Profile image URL set successfully" });
+      res.json({
+        success: true,
+        message: "Profile image URL set successfully",
+      });
     } else {
       res.status(404).json({ success: false, message: "User not found" });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal server error" });
+  }
+}
+
+async function forgotPassword(req: Request, res: Response) {
+  const { email, newPassword } = req.body;
+
+  try {
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error resetting password" });
   }
 }
 
@@ -264,5 +314,7 @@ export {
   verifyEmailOTP,
   resendEmailOTP,
   resetPassword,
-  setProfileImageUrl
+  setProfileImageUrl,
+  verifyOTPUsingEmail,
+  forgotPassword
 };

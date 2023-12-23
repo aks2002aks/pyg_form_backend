@@ -9,6 +9,8 @@ import {
   resetPassword,
   resendEmailOTP,
   setProfileImageUrl,
+  verifyOTPUsingEmail,
+  forgotPassword,
 } from "../controllers/authController";
 
 const router = express.Router();
@@ -20,6 +22,8 @@ router.post("/verifyEmailOTP", verifyEmailOTP);
 router.post("/resendEmailOTP", resendEmailOTP);
 router.post("/resetPassword", resetPassword);
 router.post("/setProfileImageUrl", setProfileImageUrl);
+router.post("/verifyOTPUsingEmail", verifyOTPUsingEmail);
+router.post("/forgotPassword", forgotPassword);
 
 // router.get("/logout", signout);
 
