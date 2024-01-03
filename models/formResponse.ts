@@ -22,6 +22,7 @@ interface FormFieldResponse {
 interface FormResponse extends Document {
   userId?: string;
   formId: string;
+  formName?: string;
   userName?: string;
   email?: string;
   formResponses: FormFieldResponse[];
@@ -33,6 +34,7 @@ const formResponseSchema = new Schema<FormResponse>({
   userId: String,
   formId: String,
   userName: String,
+  formName: String,
   email: String,
   formResponses: [Schema.Types.Mixed],
   submittedAt: {
