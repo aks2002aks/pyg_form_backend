@@ -2,12 +2,11 @@
 
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import User from "../models/user";
 import mongoose from "mongoose";
-import { setAsync, getAsync, delAsync, connectRedisDatabase } from "../redis";
-import { generateOTP } from "../utils/otpGenerator";
+import { setAsync, getAsync, delAsync } from "../redis";
 import { sendOTPToEmail } from "../utils/sendEmailOtp";
+import jwt from "jsonwebtoken";
 
 const login = async (req: Request, res: Response) => {
   const { email, phone, password } = req.body;
@@ -30,10 +29,19 @@ const login = async (req: Request, res: Response) => {
     if (passwordMatch) {
       const { password, ...userData } = user.toObject();
 
+      const secretKey = process.env.JWT_TOKEN as string; // Set the secret key to the JWT Token
+
+      const payload = {
+        ...userData,
+      };
+
+      const accessToken = jwt.sign(payload, secretKey);
+
+      const userInfo = { accessToken, ...userData };
       res.json({
         success: true,
         message: "Login successful",
-        user: userData,
+        user: userInfo,
       });
     } else {
       res.status(401).json({
@@ -278,35 +286,6 @@ async function forgotPassword(req: Request, res: Response) {
   }
 }
 
-// const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
-//   try {
-//     const bearertoken = req.headers.authorization;
-//     const token = bearertoken?.split(" ")[1];
-
-//     if (token) {
-//       const decodedToken: any = jwt.verify(
-//         token,
-//         process.env.JWT_TOKEN as string
-//       );
-
-//       if (decodedToken) {
-//         res.locals.user = decodedToken;
-//         return next();
-//       }
-//     }
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: "Internal server error" });
-//   }
-// };
-
-// const signout = async (req: Request, res: Response) => {
-//   res.clearCookie("jwt");
-//   res.json({
-//     success: true,
-//     message: "User signed out successfully",
-//   });
-// };
-
 export {
   login,
   signup,
@@ -316,5 +295,5 @@ export {
   resetPassword,
   setProfileImageUrl,
   verifyOTPUsingEmail,
-  forgotPassword
+  forgotPassword,
 };

@@ -12,16 +12,17 @@ import {
   verifyOTPUsingEmail,
   forgotPassword,
 } from "../controllers/authController";
+import { isLoggedIn } from "../middleware/isLoggedIn";
 
 const router = express.Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
 router.post("/sendEmailOTP", sendEmailOTP);
-router.post("/verifyEmailOTP", verifyEmailOTP);
+router.post("/verifyEmailOTP", isLoggedIn, verifyEmailOTP);
 router.post("/resendEmailOTP", resendEmailOTP);
-router.post("/resetPassword", resetPassword);
-router.post("/setProfileImageUrl", setProfileImageUrl);
+router.post("/resetPassword", isLoggedIn, resetPassword);
+router.post("/setProfileImageUrl", isLoggedIn, setProfileImageUrl);
 router.post("/verifyOTPUsingEmail", verifyOTPUsingEmail);
 router.post("/forgotPassword", forgotPassword);
 

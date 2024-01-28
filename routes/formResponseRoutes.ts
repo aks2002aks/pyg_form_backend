@@ -12,19 +12,20 @@ import {
   getUserResponseById,
   setFileUrlKey,
 } from "../controllers/formResponseController";
+import { isLoggedIn } from "../middleware/isLoggedIn";
 
 const router = express.Router();
 
-router.post("/createFormResponse", createFormResponse);
-router.post("/deleteFormResponses", deleteFormResponses);
+router.post("/createFormResponse",createFormResponse);
+router.post("/deleteFormResponses",isLoggedIn, deleteFormResponses);
 router.post("/checkUserResponse", checkUserResponse);
-router.post("/getUserResponseById", getUserResponseById);
-router.post("/editFormResponse", editFormResponse);
+router.post("/getUserResponseById",isLoggedIn, getUserResponseById);
+router.post("/editFormResponse",isLoggedIn, editFormResponse);
 router.post("/setFileUrlKey", setFileUrlKey);
-router.post("/deleteResponsesByFormId", deleteResponsesByFormId);
-router.post("/exportResponsesToCSV", exportResponsesToCSV);
-router.post("/getResponsesByFormId", getResponsesByFormId);
-router.post("/getResponseByResponseId", getResponseByResponseId);
-router.post("/getAllResponsesByEmailId", getAllResponsesByEmailId);
+router.post("/deleteResponsesByFormId",isLoggedIn, deleteResponsesByFormId);
+router.post("/exportResponsesToCSV",isLoggedIn, exportResponsesToCSV);
+router.post("/getResponsesByFormId",isLoggedIn, getResponsesByFormId);
+router.post("/getResponseByResponseId",isLoggedIn, getResponseByResponseId);
+router.post("/getAllResponsesByEmailId",isLoggedIn, getAllResponsesByEmailId);
 
 export default router;

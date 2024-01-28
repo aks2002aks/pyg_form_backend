@@ -17,7 +17,6 @@ const router = express.Router();
 router.get("/aws/s3/uploadImage", uploadImage);
 router.get("/aws/s3/deleteImage", deleteImage);
 router.get("/aws/s3/deleteFormImages", deleteFormImages);
-
 router.get("/aws/s3/uploadFile", uploadFile);
 router.get("/aws/s3/deleteFile", deleteFile);
 router.get("/aws/s3/deleteFormFiles", deleteFormFiles);
